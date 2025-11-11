@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>AVÍSAME — Boyacá</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b74de">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+</head>
+<body>
+  <header class="topbar">
+    <h1>AVÍSAME</h1>
+    <p class="subtitle">Boyacá — CRUCERO</p>
+  </header>
+  <main>
+    <div id="map" aria-label="Mapa de la laguna de Tota y tramo Aquitania - Sogamoso"></div>
+    <button id="installBtn" class="fab" title="Instalar AVÍSAME">Instalar AVÍSAME</button>
+    <button id="aboutBtn" class="about-btn" title="Acerca de">Acerca de</button>
+    <button id="alertsBtn" class="floating-alert" title="Mostrar alertas cercanas">🔔 Mostrar alertas cercanas</button>
+  </main>
+  <footer class="footer">
+    <small>Mapa offline: abra la app una vez con conexión para guardar recursos. Avisos solo en español.</small>
+  </footer>
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <h2>Proyecto AVÍSAME — Boyacá</h2>
+      <p>(Tramo Aquitania - Sogamoso)</p>
+      <h3>Colaboradores AVÍSAME</h3>
+      <ul>
+        <li>Alexandra Del Pilar Nova Niampira</li>
+        <li>Jaime Fernando Macana Acevedo</li>
+        <li>Nicolas Camilo Mendivelso Acosta</li>
+        <li>Wilson Hernán Pérez Pedraza</li>
+        <li>Jonathan Camilo Soto Rodríguez</li>
+      </ul>
+      <button id="closeAbout">Cerrar</button>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(()=> console.log('Service Worker registrado'))
+        .catch(err => console.error('Error registrando SW:', err));
+    }
+  </script>
+</body>
+</html>
