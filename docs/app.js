@@ -37,7 +37,11 @@ L.Control.LocateMe = L.Control.extend({
     btn.style.fontSize = '14px';
     btn.style.fontWeight = 'bold';
     btn.style.margin = '5px';
-    
+    btn.style.position = 'fixed';
+btn.style.bottom = '70px';
+btn.style.left = '20px';
+btn.style.zIndex = '9999';
+
     // Evita que el mapa se mueva al presionar el botón
     L.DomEvent.disableClickPropagation(btn);
 
