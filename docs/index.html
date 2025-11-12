@@ -26,13 +26,16 @@
   <main>
     <div id="map" aria-label="Mapa de la laguna de Tota y tramo Aquitania - Sogamoso"></div>
 
-    <!-- Botón de instalación oculto inicialmente -->
-    <button id="installBtn" class="fab" title="Instalar AVÍSAME" style="display:none;">
-      Instalar AVÍSAME
-    </button>
+    <!-- Botón instalar -->
+    <button id="installBtn" class="fab" style="display:none;">Instalar AVÍSAME</button>
 
     <button id="aboutBtn" class="about-btn" title="Acerca de">Acerca de</button>
     <button id="alertsBtn" class="floating-alert" title="Mostrar alertas cercanas">🔔 Mostrar alertas cercanas</button>
+
+    <!-- Mensaje alternativo para instalar -->
+    <p id="installMessage" style="display:none; text-align:center; color:#0b74de; font-weight:bold; margin-top:1em;">
+      Para instalar esta PWA en tu dispositivo: toca ⋮ (menú) → "Agregar a pantalla de inicio"
+    </p>
   </main>
 
   <footer class="footer">
@@ -66,22 +69,30 @@
         .catch(err => console.error('Error registrando SW:', err));
     }
 
-    // Botón instalar PWA
+    // PWA instalación
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
+    const installMsg = document.getElementById('installMessage');
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       installBtn.style.display = 'block';
+      installMsg.style.display = 'none';
     });
 
     installBtn.addEventListener('click', () => {
       installBtn.style.display = 'none';
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        deferredPrompt = null;
-      });
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+    });
+
+    // Mostrar mensaje alternativo si beforeinstallprompt no se dispara
+    window.addEventListener('load', () => {
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        // No se disparó el prompt, mostrar mensaje
+        installMsg.style.display = 'block';
+      }
     });
   </script>
 </body>
