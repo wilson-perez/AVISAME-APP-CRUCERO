@@ -1,6 +1,22 @@
 // app.js
 const centro = [5.5128, -72.9461]; // Laguna de Tota
 const map = L.map('map', { zoomControl: true }).setView(centro, 11);
+// ✅ ACTIVAR UBICACIÓN ACTUAL DEL USUARIO
+map.locate({ setView: true, maxZoom: 16, watch: true });
+
+function onLocationFound(e) {
+  const radius = e.accuracy / 2;
+  L.marker(e.latlng).addTo(map)
+    .bindPopup("📍 Estás aquí").openPopup();
+  L.circle(e.latlng, radius).addTo(map);
+}
+
+function onLocationError(e) {
+  alert("No se pudo obtener tu ubicación. Verifica permisos de GPS o activa el servicio de ubicación.");
+}
+
+map.on('locationfound', onLocationFound);
+map.on('locationerror', onLocationError);
 
 const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 L.tileLayer(tileUrl, { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
