@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>AVÍSAME — Boyacá</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b74de">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+</head>
+<body>
+  <header class="topbar">
+    <h1>AVÍSAME APP</h1>
+    <p class="subtitle">Boyacá — CRUCERO</p>
+    <h2>Alerta vial y turismo en Boyacá</h2>
+    <p style="font-size: clamp(1em, 2.5vw, 1.2em);
+              color: #e63946;
+              font-weight: bold;
+              text-align: center;
+              margin-top: 0.5em;">
+      Creada para salvar vidas ❤️
+    </p>
+  </header>
+
+  <main>
+    <div id="map" aria-label="Mapa de la laguna de Tota y tramo Aquitania - Sogamoso"></div>
+
+    <!-- Botón de instalación oculto inicialmente -->
+    <button id="installBtn" class="fab" title="Instalar AVÍSAME" style="display:none;">
+      Instalar AVÍSAME
+    </button>
+
+    <button id="aboutBtn" class="about-btn" title="Acerca de">Acerca de</button>
+    <button id="alertsBtn" class="floating-alert" title="Mostrar alertas cercanas">🔔 Mostrar alertas cercanas</button>
+  </main>
+
+  <footer class="footer">
+    <small>Mapa offline: abra la app una vez con conexión para guardar recursos. Avisos solo en español.</small>
+  </footer>
+
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <h2>Proyecto AVÍSAME — Boyacá</h2>
+      <p>(Tramo Aquitania - Sogamoso)</p>
+      <h3>Colaboradores AVÍSAME</h3>
+      <ul>
+        <li>Alexandra Del Pilar Nova Niampira</li>
+        <li>Jaime Fernando Macana Acevedo</li>
+        <li>Nicolas Camilo Mendivelso Acosta</li>
+        <li>Wilson Hernán Pérez Pedraza</li>
+        <li>Jonathan Camilo Soto Rodríguez</li>
+      </ul>
+      <button id="closeAbout">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js"></script>
+
+  <script>
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(()=> console.log('Service Worker registrado'))
+        .catch(err => console.error('Error registrando SW:', err));
+    }
+
+    // Botón instalar PWA
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', () => {
+      installBtn.style.display = 'none';
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        deferredPrompt = null;
+      });
+    });
+  </script>
+</body>
+</html>
