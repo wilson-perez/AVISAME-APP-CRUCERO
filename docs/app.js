@@ -20,6 +20,56 @@ map.on('locationerror', onLocationError);
 
 const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 L.tileLayer(tileUrl, { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+// ✅ FUNCIÓN PARA MOSTRAR UBICACIÓN ACTUAL Y BOTÓN PERSONALIZADO
+
+// Crear control personalizado en la esquina inferior izquierda
+L.Control.LocateMe = L.Control.extend({
+  onAdd: function(map) {
+    const btn = L.DomUtil.create('button', '');
+    btn.innerHTML = '📍 Ver mi ubicación';
+    btn.style.background = '#0077cc';
+    btn.style.color = 'white';
+    btn.style.padding = '6px 10px';
+    btn.style.border = 'none';
+    btn.style.borderRadius = '8px';
+    btn.style.cursor = 'pointer';
+    btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+    btn.style.fontSize = '14px';
+    btn.style.fontWeight = 'bold';
+    btn.style.margin = '5px';
+    
+    // Evita que el mapa se mueva al presionar el botón
+    L.DomEvent.disableClickPropagation(btn);
+
+    btn.onclick = () => {
+      map.locate({ setView: true, maxZoom: 16, watch: false });
+    };
+
+    return btn;
+  },
+  onRemove: function(map) {}
+});
+
+// Agregar el botón al mapa
+L.control.locateMe = function(opts) {
+  return new L.Control.LocateMe(opts);
+}
+L.control.locateMe({ position: 'bottomleft' }).addTo(map);
+
+// Manejo de eventos de ubicación
+function onLocationFound(e) {
+  const radius = e.accuracy / 2;
+  L.marker(e.latlng).addTo(map)
+    .bindPopup("📍 Estás aquí").openPopup();
+  L.circle(e.latlng, radius).addTo(map);
+}
+
+function onLocationError(e) {
+  alert("No se pudo obtener tu ubicación. Verifica permisos de GPS o activa la ubicación en tu dispositivo.");
+}
+
+map.on('locationfound', onLocationFound);
+map.on('locationerror', onLocationError);
 
 const icons = {
   alerta: L.icon({ iconUrl: 'icons/alerta.png', iconSize: [36,36], iconAnchor: [18,36] }),
