@@ -1,139 +1,151 @@
- 
-      
-      <!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>AVÍSAME — Boyacá</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>AVÍSAME APP - Boyacá Crucero</title>
+
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b74de">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <meta name="theme-color" content="#0077cc">
+  
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
   <style>
-    header {
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: #f4f4f4;
       text-align: center;
-      background: linear-gradient(180deg, #0077cc, #005fa3);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0077cc, #005fa3);
       color: white;
-      padding: 15px 5px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      padding: 12px;
+      flex-shrink: 0;
     }
 
     header h1 {
-      font-size: 26px;
+      font-size: 24px;
       margin: 0;
     }
 
     header h2 {
-      font-size: 20px;
-      margin: 5px 0;
+      font-size: 18px;
+      margin: 4px 0;
+      font-weight: normal;
     }
 
-    header p {
+    #buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-shrink: 0;
+      padding: 8px;
+      background: #f9f9f9;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
       font-size: 16px;
-      color: #ffeaea;
-      margin: 5px 0;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
     }
 
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 24px;
-      }
-      header h2 {
-        font-size: 18px;
-      }
-      button {
-        font-size: 16px !important;
-      }
-      .leaflet-control {
-        margin-bottom: 70px;
-      }
+    #installButton {
+      background: #28a745;
+      display: none;
+    }
+
+    #locationButton {
+      background: #0077cc;
+    }
+
+    #map {
+      flex-grow: 1;
+      width: 100%;
     }
   </style>
 </head>
-
 <body>
   <header>
     <h1>AVÍSAME APP</h1>
-    <h2>Alerta vial y turismo en Boyacá</h2>
-    <p>Creada para salvar vidas ❤️</p>
-    <!-- Invitación a instalar PWA -->
-    <p id="downloadInvite" style="font-weight:bold; color:#ffeb3b; margin-top:0.5em;">
-      📲 Instala AVÍSAME en tu dispositivo para acceso rápido desde tu pantalla de inicio
-    </p>
+    <h2>Boyacá - Crucero</h2>
   </header>
 
-  <main>
-    <div id="map" aria-label="Mapa de la laguna de Tota y tramo Aquitania - Sogamoso"></div>
-
-    <!-- Botón instalar PWA -->
-    <button id="installBtn" class="fab" style="display:none;">Instalar AVÍSAME</button>
-
-    <button id="aboutBtn" class="about-btn" title="Acerca de">Acerca de</button>
-    <button id="alertsBtn" class="floating-alert" title="Mostrar alertas cercanas">🔔 Mostrar alertas cercanas</button>
-
-    <!-- Mensaje alternativo si PWA no se dispara -->
-    <p id="installMessage" style="display:none; text-align:center; color:#0b74de; font-weight:bold; margin-top:1em;">
-      Para instalar esta PWA: toca ⋮ (menú) → "Agregar a pantalla de inicio"
-    </p>
-  </main>
-
-  <footer class="footer" style="text-align:center; font-size:12px; color:#444; padding:10px;">
-    <small>Mapa offline: abra la app una vez con conexión para guardar recursos. Avisos solo en español.</small>
-  </footer>
-
-  <div id="aboutModal" class="modal">
-    <div class="modal-content">
-      <h2>Proyecto AVÍSAME — Boyacá</h2>
-      <p>(Tramo Aquitania - Sogamoso)</p>
-      <h3>Colaboradores AVÍSAME</h3>
-      <ul>
-        <li>Alexandra Del Pilar Nova Niampira</li>
-        <li>Jaime Fernando Macana Acevedo</li>
-        <li>Nicolas Camilo Mendivelso Acosta</li>
-        <li>Wilson Hernán Pérez Pedraza</li>
-        <li>Jonathan Camilo Soto Rodríguez</li>
-      </ul>
-      <button id="closeAbout">Cerrar</button>
-    </div>
+  <div id="buttons">
+    <button id="installButton">📲 Instalar App</button>
+    <button id="locationButton">📍 Mi ubicación</button>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js"></script>
+  <div id="map"></div>
 
   <script>
-    // Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js')
-        .then(()=> console.log('Service Worker registrado'))
-        .catch(err => console.error('Error registrando SW:', err));
-    }
+    // --- Mapa Leaflet ---
+    const map = L.map('map').setView([5.5, -73.5], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-    // Botón instalar PWA
+    let userMarker = null;
+
+    document.getElementById('locationButton').addEventListener('click', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude, longitude } = pos.coords;
+          if (userMarker) map.removeLayer(userMarker);
+          userMarker = L.marker([latitude, longitude]).addTo(map)
+            .bindPopup("📍 Estás aquí").openPopup();
+          map.setView([latitude, longitude], 15);
+        }, () => alert("No se pudo obtener tu ubicación"));
+      } else {
+        alert("Tu dispositivo no soporta geolocalización");
+      }
+    });
+
+    // --- Instalación PWA ---
     let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-    const installMsg = document.getElementById('installMessage');
+    const installButton = document.getElementById('installButton');
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'block';
-      installMsg.style.display = 'none';
+      installButton.style.display = 'inline-block';
     });
 
-    installBtn.addEventListener('click', () => {
-      installBtn.style.display = 'none';
+    installButton.addEventListener('click', async () => {
+      installButton.style.display = 'none';
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') console.log('App instalada');
+      deferredPrompt = null;
     });
 
-    // Mensaje alternativo si PWA no se dispara
-    window.addEventListener('load', () => {
-      if (!window.matchMedia('(display-mode: standalone)').matches) {
-        installMsg.style.display = 'block';
-      }
-    });
+    // --- Registrar Service Worker ---
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(console.error);
+    }
+
+    // --- Ajuste automático para altura de pantalla ---
+    function ajustarMapa() {
+      const altura = window.innerHeight - document.querySelector('header').offsetHeight - document.querySelector('#buttons').offsetHeight;
+      document.getElementById('map').style.height = altura + 'px';
+    }
+
+    window.addEventListener('resize', ajustarMapa);
+    window.addEventListener('load', ajustarMapa);
   </script>
 </body>
 </html>
