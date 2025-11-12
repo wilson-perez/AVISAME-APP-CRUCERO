@@ -10,27 +10,34 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 </head>
 <body>
-  <!-- Mensaje superior invitando a descargar -->
-  <p style="font-size:1.2em; font-weight:bold; text-align:center; color:#0b74de; margin:0.5em 0;">
-    ¡Prueba la nueva AVÍSAME APP! 🌍 Creada para salvar vidas ❤️
-  </p>
-
   <header class="topbar">
     <h1>AVÍSAME APP</h1>
     <p class="subtitle">Boyacá — CRUCERO</p>
     <h2>Alerta vial y turismo en Boyacá</h2>
+    <p style="font-size: clamp(1em, 2.5vw, 1.2em);
+              color: #e63946;
+              font-weight: bold;
+              text-align: center;
+              margin-top: 0.5em;">
+      Creada para salvar vidas ❤️
+    </p>
   </header>
 
   <main>
+    <!-- Mensaje invitando a instalar -->
+    <div id="installPromptMsg" style="display:none; text-align:center; background:#0b74de; color:white; font-weight:bold; padding:0.5em; margin-bottom:0.5em; border-radius:5px;">
+      Instala AVÍSAME para salvar vidas 🚨
+    </div>
+
     <div id="map" aria-label="Mapa de la laguna de Tota y tramo Aquitania - Sogamoso"></div>
 
-    <!-- Botón instalar PWA -->
+    <!-- Botón instalar -->
     <button id="installBtn" class="fab" style="display:none;">Instalar AVÍSAME</button>
 
     <button id="aboutBtn" class="about-btn" title="Acerca de">Acerca de</button>
     <button id="alertsBtn" class="floating-alert" title="Mostrar alertas cercanas">🔔 Mostrar alertas cercanas</button>
 
-    <!-- Mensaje alternativo instalación -->
+    <!-- Mensaje alternativo si beforeinstallprompt no se dispara -->
     <p id="installMessage" style="display:none; text-align:center; color:#0b74de; font-weight:bold; margin-top:1em;">
       Para instalar esta PWA en tu dispositivo: toca ⋮ (menú) → "Agregar a pantalla de inicio"
     </p>
@@ -68,26 +75,28 @@
     }
 
     // PWA instalación
-    let deferredPrompt;
+    const installPromptMsg = document.getElementById('installPromptMsg');
     const installBtn = document.getElementById('installBtn');
     const installMsg = document.getElementById('installMessage');
+    let deferredPrompt;
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       installBtn.style.display = 'block';
+      installPromptMsg.style.display = 'block';
       installMsg.style.display = 'none';
     });
 
     installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
       installBtn.style.display = 'none';
+      installPromptMsg.style.display = 'none';
       deferredPrompt.prompt();
-      const choice = await deferredPrompt.userChoice;
+      await deferredPrompt.userChoice;
       deferredPrompt = null;
     });
 
-    // Mostrar mensaje alternativo si beforeinstallprompt no se dispara
+    // Mostrar mensaje alternativo si no se disparó el prompt
     window.addEventListener('load', () => {
       if (!window.matchMedia('(display-mode: standalone)').matches) {
         installMsg.style.display = 'block';
