@@ -2,7 +2,7 @@
 const centro = [5.5128, -72.9461]; // Laguna de Tota
 const map = L.map('map', { zoomControl: true }).setView(centro, 11);
 // ✅ ACTIVAR UBICACIÓN ACTUAL DEL USUARIO
-map.locate({ setView: true, maxZoom: 16, watch: true });
+//map.locate({ setView: true, maxZoom: 16, watch: true });
 
 function onLocationFound(e) {
   const radius = e.accuracy / 2;
