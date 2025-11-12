@@ -21,23 +21,22 @@
               margin-top: 0.5em;">
       Creada para salvar vidas ❤️
     </p>
+    <!-- Invitación a instalar PWA -->
+    <p id="downloadInvite" style="text-align:center; font-weight:bold; color:#0b74de; margin-top:0.5em;">
+      ¡Instala AVÍSAME en tu dispositivo y accede rápido desde tu pantalla de inicio!
+    </p>
   </header>
 
   <main>
-    <!-- Mensaje invitando a instalar -->
-    <div id="installPromptMsg" style="display:none; text-align:center; background:#0b74de; color:white; font-weight:bold; padding:0.5em; margin-bottom:0.5em; border-radius:5px;">
-      Instala AVÍSAME para salvar vidas 🚨
-    </div>
-
     <div id="map" aria-label="Mapa de la laguna de Tota y tramo Aquitania - Sogamoso"></div>
 
-    <!-- Botón instalar -->
+    <!-- Botón instalar PWA -->
     <button id="installBtn" class="fab" style="display:none;">Instalar AVÍSAME</button>
 
     <button id="aboutBtn" class="about-btn" title="Acerca de">Acerca de</button>
     <button id="alertsBtn" class="floating-alert" title="Mostrar alertas cercanas">🔔 Mostrar alertas cercanas</button>
 
-    <!-- Mensaje alternativo si beforeinstallprompt no se dispara -->
+    <!-- Mensaje alternativo si PWA no se dispara -->
     <p id="installMessage" style="display:none; text-align:center; color:#0b74de; font-weight:bold; margin-top:1em;">
       Para instalar esta PWA en tu dispositivo: toca ⋮ (menú) → "Agregar a pantalla de inicio"
     </p>
@@ -74,29 +73,25 @@
         .catch(err => console.error('Error registrando SW:', err));
     }
 
-    // PWA instalación
-    const installPromptMsg = document.getElementById('installPromptMsg');
+    // Botón instalar PWA
+    let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
     const installMsg = document.getElementById('installMessage');
-    let deferredPrompt;
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       installBtn.style.display = 'block';
-      installPromptMsg.style.display = 'block';
       installMsg.style.display = 'none';
     });
 
-    installBtn.addEventListener('click', async () => {
+    installBtn.addEventListener('click', () => {
       installBtn.style.display = 'none';
-      installPromptMsg.style.display = 'none';
       deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
     });
 
-    // Mostrar mensaje alternativo si no se disparó el prompt
+    // Mensaje alternativo si PWA no se dispara
     window.addEventListener('load', () => {
       if (!window.matchMedia('(display-mode: standalone)').matches) {
         installMsg.style.display = 'block';
