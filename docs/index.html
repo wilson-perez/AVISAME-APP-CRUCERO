@@ -20,7 +20,6 @@
   <meta name="twitter:image" content="https://wilson-perez.github.io/AVISAME-APP-CRUCERO/icons/icon-512x512.png">
 
   <style>
-    /* Ajuste general para pantallas móviles */
     body {
       margin: 0;
       font-family: "Segoe UI", Arial, sans-serif;
@@ -41,9 +40,175 @@
       font-size: clamp(1.6em, 5vw, 2em);
       margin: 0;
       font-weight: bold;
-      letter-spacing: 1px;
     }
 
     header .subtitle {
       margin: 5px 0;
       font-size: clamp(1em, 3.5vw, 1.2em);
+      color: #e8e8e8;
+      font-weight: 500;
+    }
+
+    header h2 {
+      font-size: clamp(1em, 3vw, 1.1em);
+      color: #ffeaee;
+      margin: 4px 0 6px 0;
+    }
+
+    header p.tagline {
+      color: #ffd4d4;
+      font-weight: bold;
+      margin: 8px 0 0;
+      font-size: clamp(0.9em, 3vw, 1em);
+    }
+
+    #downloadInvite {
+      font-weight: bold;
+      color: #fff;
+      background: rgba(0,0,0,0.15);
+      display: inline-block;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    main {
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 80vh;
+      border-top: 2px solid #0077cc;
+    }
+
+    button.fab {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 10px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    button.about-btn,
+    button.floating-alert {
+      position: fixed;
+      bottom: 20px;
+      background-color: white;
+      border: 1px solid #0077cc;
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    button.about-btn {
+      left: 20px;
+    }
+
+    button.floating-alert {
+      right: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      color: #555;
+      background-color: #f1f1f1;
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 24px; }
+      header .subtitle { font-size: 16px; }
+      header h2 { font-size: 15px; }
+      button.fab { font-size: 14px; padding: 9px 15px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>AVÍSAME APP</h1>
+    <p class="subtitle">Boyacá — CRUCERO</p>
+    <h2>Alertas viales y turismo en Boyacá</h2>
+    <p class="tagline">🚗❤️ Creada para salvar vidas ❤️</p>
+    <p id="downloadInvite">¡Instala AVÍSAME y accede rápido desde tu pantalla de inicio!</p>
+  </header>
+
+  <main>
+    <div id="map" aria-label="Mapa de la laguna de Tota y tramo Aquitania - Sogamoso"></div>
+
+    <button id="installBtn" class="fab" style="display:none;">Instalar AVÍSAME</button>
+    <button id="aboutBtn" class="about-btn" title="Acerca de">Acerca de</button>
+    <button id="alertsBtn" class="floating-alert" title="Mostrar alertas cercanas">🔔 Alertas cercanas</button>
+
+    <p id="installMessage" style="display:none; text-align:center; color:#0b74de; font-weight:bold; margin-top:1em;">
+      Para instalar esta PWA: toca ⋮ → “Agregar a pantalla de inicio”
+    </p>
+  </main>
+
+  <footer>
+    <small>Mapa offline: abra la app una vez con conexión para guardar recursos. Avisos solo en español.</small>
+  </footer>
+
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <h2>Proyecto AVÍSAME — Boyacá</h2>
+      <p>(Tramo Aquitania - Sogamoso)</p>
+      <h3>Colaboradores AVÍSAME</h3>
+      <ul>
+        <li>Alexandra Del Pilar Nova Niampira</li>
+        <li>Jaime Fernando Macana Acevedo</li>
+        <li>Nicolas Camilo Mendivelso Acosta</li>
+        <li>Wilson Hernán Pérez Pedraza</li>
+        <li>Jonathan Camilo Soto Rodríguez</li>
+      </ul>
+      <button id="closeAbout">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js"></script>
+
+  <script>
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(()=> console.log('Service Worker registrado'))
+        .catch(err => console.error('Error registrando SW:', err));
+    }
+
+    // Botón instalar PWA
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    const installMsg = document.getElementById('installMessage');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+      installMsg.style.display = 'none';
+    });
+
+    installBtn.addEventListener('click', () => {
+      installBtn.style.display = 'none';
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+    });
+
+    // Mensaje alternativo si PWA no se dispara
+    window.addEventListener('load', () => {
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        installMsg.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
