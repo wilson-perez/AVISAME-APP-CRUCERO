@@ -1,20 +1,136 @@
-<header style="text-align: center; background: linear-gradient(180deg, #0077cc, #005fa3); color: white; padding: 15px 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-  <h1 style="font-size: 28px; margin: 0;">AVÍSAME 🚨</h1>
-  <p style="font-size: 18px; color: #ffebcd; margin: 8px 0;">Bienvenido, gracias por usar nuestra app 💙</p>
-  <h2 style="font-size: 22px; margin: 5px 0;">Boyacá - Crucero</h2>
-  <p style="font-size: 16px; color: #ffeaea; margin: 5px 0;">Creada para salvar vidas ❤️</p>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>AVÍSAME — Boyacá</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b74de">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+
+  <!-- META: vista previa para redes sociales -->
+  <meta property="og:title" content="¡Prueba la nueva AVÍSAME APP! 🌍">
+  <meta property="og:description" content="PWA interactiva para alertas viales y turismo en Boyacá. 🚗❤️ Creada para salvar vidas.">
+  <meta property="og:image" content="https://wilson-perez.github.io/AVISAME-APP-CRUCERO/icons/icon-512x512.png">
+  <meta property="og:url" content="https://wilson-perez.github.io/AVISAME-APP-CRUCERO/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="¡Prueba la nueva AVÍSAME APP! 🌍">
+  <meta name="twitter:description" content="Alertas viales y turismo en Boyacá — creada para salvar vidas ❤️">
+  <meta name="twitter:image" content="https://wilson-perez.github.io/AVISAME-APP-CRUCERO/icons/icon-512x512.png">
+</head>
+
+<style>
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 26px;
+  }
+  header p {
+    font-size: 16px;
+  }
+  button {
+    font-size: 16px !important;
+  }
+  .leaflet-control {
+    margin-bottom: 70px;
+  }
+}
+</style>
+
+<body>
+<header style="text-align: center; background: #0077cc; color: white; padding: 10px 0;">
+  <h1 style="font-size: 28px; margin: 0;">Boyacá</h1>
+  <p style="font-size: 18px; color: #ffeaea; margin: 5px 0;">Creada para salvar vidas ❤️</p>
 </header>
 
-<!-- 🔽 BOTÓN DE INSTALACIÓN (visible en móviles y centrado) -->
-<div id="installContainer" style="text-align: center; margin: 15px 0;">
-  <button id="installButton" style="
-    background: #0077cc;
-    color: white;
-    font-size: 18px;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  ">
-    📲 Instalar aplicación
-  </butto
+<header class="topbar">
+  <h1>AVÍSAME APP</h1>
+  <p class="subtitle">Boyacá — CRUCERO</p>
+  <h2>Alerta vial y turismo en Boyacá</h2>
+  <p style="font-size: clamp(1em, 2.5vw, 1.2em);
+            color: #e63946;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 0.5em;">
+    Creada para salvar vidas ❤️
+  </p>
+
+  <!-- Invitación a instalar PWA -->
+  <p id="downloadInvite" style="text-align:center; font-weight:bold; color:#0b74de; margin-top:0.5em;">
+    ¡Instala AVÍSAME en tu dispositivo y accede rápido desde tu pantalla de inicio!
+  </p>
+</header>
+
+<main>
+  <div id="map" aria-label="Mapa de la laguna de Tota y tramo Aquitania - Sogamoso"></div>
+
+  <!-- Botón instalar PWA -->
+  <button id="installBtn" class="fab" style="display:none;">Instalar AVÍSAME</button>
+
+  <button id="aboutBtn" class="about-btn" title="Acerca de">Acerca de</button>
+  <button id="alertsBtn" class="floating-alert" title="Mostrar alertas cercanas">🔔 Mostrar alertas cercanas</button>
+
+  <!-- Mensaje alternativo si PWA no se dispara -->
+  <p id="installMessage" style="display:none; text-align:center; color:#0b74de; font-weight:bold; margin-top:1em;">
+    Para instalar esta PWA en tu dispositivo: toca ⋮ (menú) → "Agregar a pantalla de inicio"
+  </p>
+</main>
+
+<footer class="footer">
+  <small>Mapa offline: abra la app una vez con conexión para guardar recursos. Avisos solo en español.</small>
+</footer>
+
+<div id="aboutModal" class="modal">
+  <div class="modal-content">
+    <h2>Proyecto AVÍSAME — Boyacá</h2>
+    <p>(Tramo Aquitania - Sogamoso)</p>
+    <h3>Colaboradores AVÍSAME</h3>
+    <ul>
+      <li>Alexandra Del Pilar Nova Niampira</li>
+      <li>Jaime Fernando Macana Acevedo</li>
+      <li>Nicolas Camilo Mendivelso Acosta</li>
+      <li>Wilson Hernán Pérez Pedraza</li>
+      <li>Jonathan Camilo Soto Rodríguez</li>
+    </ul>
+    <button id="closeAbout">Cerrar</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="app.js"></script>
+
+<script>
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(()=> console.log('Service Worker registrado'))
+      .catch(err => console.error('Error registrando SW:', err));
+  }
+
+  // Botón instalar PWA
+  let deferredPrompt;
+  const installBtn = document.getElementById('installBtn');
+  const installMsg = document.getElementById('installMessage');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'block';
+    installMsg.style.display = 'none';
+  });
+
+  installBtn.addEventListener('click', () => {
+    installBtn.style.display = 'none';
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  });
+
+  // Mensaje alternativo si PWA no se dispara
+  window.addEventListener('load', () => {
+    if (!window.matchMedia('(display-mode: standalone)').matches) {
+      installMsg.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>
